@@ -1,1 +1,2 @@
-espeakng=1.0.3
+py-espeak-ng=0.1.8
+rpi-lgpio=0.6
