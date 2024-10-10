@@ -118,12 +118,13 @@ spatial_prepositions = [
 ]
 
 temporal_prepositions = [
-    "in",
+    "at",
+    "on",
     "during",
-    "within",
     "before",
-    "through",
-    "upon the peak of",
+    "after",
+    "until",
+    "since"
 ]
 
 places = [
@@ -164,5 +165,5 @@ times = [
     "the golden hour",
     "the waning moon",
     "the rising sun",
-    "the midnight hour",
+    "the midnight hour"
 ]
