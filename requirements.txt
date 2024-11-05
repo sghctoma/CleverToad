@@ -1,2 +1,4 @@
-py-espeak-ng=0.1.8
-rpi-lgpio=0.6
+gpiozero==2.0.1
+py-espeak-ng==0.1.8
+pygame==2.6.1
+rpi-lgpio==0.6

@@ -6,161 +6,143 @@ import time
 import threading
 import tomllib
 import pygame
-from RPi import GPIO
+from gpiozero import Button, LED, Servo
 from espeakng import ESpeakNG
 
 
-PIN_BOOK = 14
-PIN_EYES = 17
-PIN_LEVER = 27
-PIN_COIN = 22
-
-pwm = None
-tune = None
-speech_engine = None
-coin_received = False
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 
-def generate_premonition(vocabulary):
-    sentence = [
-        random.choice(vocabulary['subjects']),
-        random.choice(vocabulary['actions']),
-        random.choice(vocabulary['objects']),
-    ]
+class CleverToad:
+    def __init__(self):
+        with open('vocabulary.toml', 'rb') as f:
+            self.vocabulary = tomllib.load(f)
 
-    pt = random.randint(0, 2)
-    if pt == 0:
-        sentence.append(random.choice(vocabulary['spatial_prepositions']))
-        sentence.append(random.choice(vocabulary['places']))
-    elif pt == 1:
-        sentence.append(random.choice(vocabulary['temporal_prepositions']))
-        sentence.append(random.choice(vocabulary['times']))
-    else:
-        sentence.append(random.choice(vocabulary['spatial_prepositions']))
-        sentence.append(random.choice(vocabulary['places']))
-        sentence.append(random.choice(vocabulary['temporal_prepositions']))
-        sentence.append(random.choice(vocabulary['times']))
+        pygame.mixer.init()
+        self.tune = pygame.mixer.Sound("tune.wav")
 
-    logger.info(sentence)
-    return ' ... '.join(sentence)
+        Button.was_held = False
+        self.lever_button = Button(27, bounce_time=0.05, hold_time=0.5)
+        self.lever_button.when_held = self.lever_held
+        self.lever_button.when_released = self.lever_released
+        self.coin_button = Button(22, bounce_time=0.1)
+        self.coin_button.when_released = self.coin_inserted
+        self.eyes_led = LED(17)
+        self.book_servo = Servo(pin=14,
+                                min_pulse_width=0.8/1000,
+                                max_pulse_width=2.2/1000,
+                                initial_value=1,
+                                frame_width=10/1000)
+        self.speech_engine = ESpeakNG()
+        self.speech_engine.speed = 155
+        self.speech_engine.pitch = 25
+        self.speech_engine.voice = 'en'
+        self.coin_received = False
+        self.dice_mode = False
 
+    def generate_prophecy(self):
+        sentence = [
+            random.choice(self.vocabulary['subjects']),
+            random.choice(self.vocabulary['actions']),
+            random.choice(self.vocabulary['objects']),
+        ]
 
-def blink():
-    GPIO.output(PIN_EYES, 1)
-    time.sleep(0.1)
-    GPIO.output(PIN_EYES, 0)
-    time.sleep(0.2)
+        pt = random.randint(0, 2)
+        if pt == 0:
+            sentence.append(random.choice(
+                self.vocabulary['spatial_prepositions']))
+            sentence.append(random.choice(self.vocabulary['places']))
+        elif pt == 1:
+            sentence.append(random.choice(
+                self.vocabulary['temporal_prepositions']))
+            sentence.append(random.choice(self.vocabulary['times']))
+        else:
+            sentence.append(random.choice(
+                self.vocabulary['spatial_prepositions']))
+            sentence.append(random.choice(self.vocabulary['places']))
+            sentence.append(random.choice(
+                self.vocabulary['temporal_prepositions']))
+            sentence.append(random.choice(self.vocabulary['times']))
 
+        logger.info(sentence)
+        return ' ... '.join(sentence)
 
-def turn_book_pages():
-    global pwm
+    def blink(self):
+        self.eyes_led.on()
+        time.sleep(0.1)
+        self.eyes_led.off()
+        time.sleep(0.2)
 
-    pwm.start(0)
-    pwm.ChangeDutyCycle(50)
-    time.sleep(0.1)
-    pwm.ChangeDutyCycle(60)
-    time.sleep(0.1)
-    pwm.ChangeDutyCycle(70)
-    time.sleep(1)
-    pwm.ChangeDutyCycle(50)
-    time.sleep(0.2)
-    pwm.ChangeDutyCycle(30)
-    time.sleep(0.2)
-    pwm.stop()
+    def turn_pages(self):
+        for s in range(90, 16, -2):
+            self.book_servo.value = (s / 90)
+            time.sleep(0.01)
+        for s in range(15, -25, -1):
+            self.book_servo.value = (s / 90)
+            time.sleep(0.02)
 
+    def on_missing_coin(self):
+        self.speech_engine.speed = 230
+        self.speech_engine.say("Ah... ah... ah...", sync=False)
+        self.blink()
+        self.blink()
+        self.blink()
+        self.speech_engine.speed = 155
+        self.speech_engine.say("You didn't say the magic word!", sync=True)
 
-def on_missing_coin():
-    global speech_engine
+    def on_prophecy(self):
+        self.coin_received = False
 
-    speech_engine.speed = 230
-    speech_engine.say("Ah... ah... ah...", sync=False)
-    blink()
-    blink()
-    blink()
-    speech_engine.speed = 155
-    speech_engine.say("You didn't say the magic word!", sync=True)
+        channel = self.tune.play()
+        threading.Thread(target=self.turn_pages).start()
+        self.blink()
+        self.eyes_led.on()
+        while channel.get_busy():
+            pygame.time.Clock().tick(10)
+        self.speech_engine.say(self.generate_prophecy(), sync=True)
+        self.eyes_led.off()
+        self.book_servo.value = 1
 
+    def coin_inserted(self):
+        logger.info("coin inserted")
+        self.coin_received = True
 
-def on_premonition():
-    global coin_received
-    global tune
+    def lever_released(self):
+        if not self.lever_button.was_held:
+            self.roll_d20() if self.dice_mode else self.lever_pulled()
+        self.lever_button.was_held = False
 
-    coin_received = False
+    def lever_held(self):
+        self.lever_button.was_held = True
+        self.dice_mode = not self.dice_mode
+        if self.dice_mode:
+            logger.info("dice mode activated")
+            message = "You wish... to use my talents... to roll dice?... So shall it be."
+        else:
+            logger.info("prophecy mode activated")
+            message = "Back to the prophecies... Thank you!"
+        self.speech_engine.say(message)
 
-    channel = tune.play()
-    threading.Thread(target=turn_book_pages).start()
-    blink()
-    GPIO.output(PIN_EYES, 1)
-    while channel.get_busy():
-        pygame.time.Clock().tick(10)
-    speech_engine.say(generate_premonition(vocabulary), sync=True)
-    GPIO.output(PIN_EYES, 0)
+    def roll_d20(self):
+        n = random.randint(1, 20)
+        logger.info(f"rolled {n}")
+        if n == 1:
+            message = "you borfed it"
+        elif n == 20:
+            message = "high roller indeed!"
+        else:
+            message = str(n)
+        self.speech_engine.say(message, sync=True)
 
-
-def coin_inserted(pin):
-    global coin_received
-
-    logger.info("coin inserted")
-    coin_received = True
-
-
-def lever_pulled(pin):
-    global coin_received
-
-    logger.info(f"lever pulled (coin: {coin_received})")
-    if not coin_received:
-        on_missing_coin()
-    else:
-        on_premonition()
-
-
-def setup_gpio():
-    global pwm
-
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-
-    # coin
-    GPIO.setup(PIN_COIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.add_event_detect(PIN_COIN, GPIO.RISING, bouncetime=100,
-                          callback=coin_inserted)
-    # lever
-    GPIO.setup(PIN_LEVER, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.add_event_detect(PIN_LEVER, GPIO.RISING, bouncetime=200,
-                          callback=lever_pulled)
-    # eyes
-    GPIO.setup(PIN_EYES, GPIO.OUT)
-    GPIO.output(PIN_EYES, 0)
-
-    # book
-    GPIO.setup(PIN_BOOK, GPIO.OUT, initial=GPIO.LOW)
-    pwm = GPIO.PWM(PIN_BOOK, 50)
-
-
-def setup_speech():
-    global speech_engine
-
-    speech_engine = ESpeakNG()
-    speech_engine.speed = 155
-    speech_engine.pitch = 25
-    speech_engine.voice = 'en'
-
-
-def setup_tune():
-    global tune
-
-    pygame.mixer.init()
-    tune = pygame.mixer.Sound("tune.wav")
+    def lever_pulled(self):
+        logger.info(f"lever pulled (coin: {self.coin_received})")
+        if not self.coin_received:
+            self.on_missing_coin()
+        else:
+            self.on_prophecy()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    with open('vocabulary.toml', 'rb') as f:
-        vocabulary = tomllib.load(f)
-    setup_speech()
-    setup_gpio()
-    setup_tune()
-
+    _ = CleverToad()
     input("Press enter to quit\n\n")
-    GPIO.cleanup()
