@@ -1,0 +1,292 @@
+/* General container styling */
+
+body {
+  font-family: 'Uncial Antiqua', fantasy, serif;
+  background: radial-gradient(circle, #2b2d42, #1a1b31);
+  font-size: 0.8em;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 80vw;
+  height: 75vh;
+  margin-top: 5vh;
+  color: #f5f5dc;
+  background: linear-gradient(to bottom, #3a2e30, #1f1b1c);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #a67b5b;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.scrollable-container {
+  height: 60vh;
+  overflow-y: auto;
+}
+
+/* Title styling */
+h1 {
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #ffe5b4;
+  text-shadow: 1px 1px 4px #000;
+}
+
+h2 {
+  font-size: 1.0em;
+  text-align: center;
+}
+
+/* Dice preferences */
+.dice-preference-container {
+  display: flex;
+  flex-direction: down;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.dice-preference-container label {
+  width: 100px;
+  margin-top: 5px;
+  padding-right: 10px;
+  text-align: left;
+  display: inline-block;
+}
+
+.dice-preference-container input {
+  width: 120px;
+  font-size: 0.9em;
+  padding: 5px 8px;
+  border: 1px solid #a67b5b;
+  border-radius: 6px;
+  background-color: #2e1f20;
+  color: #ffdab9;
+  outline: none;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.dice-preference-container input:focus {
+  border-color: #f5b382;
+  background-color: #3d2b2c;
+}
+
+button.play {
+  box-sizing: border-box;
+  height: 0px;
+  margin-left: 10px;
+  margin-top: 8px;
+  vertical-align: middle;
+  
+  background: transparent;
+  border-color: transparent transparent transparent #cfaa88;
+  transition: 100ms all ease;
+  will-change: border-width;
+  cursor: pointer;
+
+  border-style: solid;
+  border-width: 8px 0 8px 12px;
+
+  &:hover {
+    border-color: transparent transparent transparent #9f7a58;
+  }
+}
+
+/* Lists container */
+.prophecies-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 80vw;
+}
+
+/* List container styling */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin: 5px 5px;
+  background: rgba(50, 30, 30, 0.8);
+  border: 1px solid #5b4334;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Title for each list */
+.list-title {
+  flex: 1;
+  text-align: center;
+  color: #ffdab9;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 3px #000;
+}
+
+/* Search box styling */
+.search-container {
+  display: grid;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.search-container input[type="text"] {
+  padding: 5px 8px;
+  border: 1px solid #a67b5b;
+  border-radius: 6px;
+  background-color: #2e1f20;
+  color: #ffdab9;
+  outline: none;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.search-container input[type="text"]:focus {
+  border-color: #f5b382;
+  background-color: #3d2b2c;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(34, 34, 59, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #5b4334;
+  border-radius: 4px;
+  border: 2px solid rgba(34, 34, 59, 0.3);
+}
+
+/* List item styling */
+.list {
+  height: 20vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 5px;
+  border-top: 1px solid #5b4334;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.item input[type="text"] {
+  flex: 1;
+  padding: 5px;
+  margin-right: 5px;
+  font-size: 0.9em;
+  border: 1px solid #a67b5b;
+  border-radius: 6px;
+  background-color: #2e1f20;
+  color: #ffdab9;
+  outline: none;
+}
+
+.item input[type="text"]:focus {
+  border-color: #f5b382;
+  background-color: #3d2b2c;
+}
+
+.item button {
+  padding: 3px 8px;
+  font-size: 0.8em;
+  color: #ffdab9;
+  background: #5b4334;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.item button:hover {
+  background: #7b5c3e;
+}
+
+/* Scroll anchor styling */
+.scroll-anchor {
+  height: 1px; /* Invisible but acts as a scroll target */
+}
+
+/* Add item button styling */
+.add-item button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  color: #ffdab9;
+  background: #5b4334;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 10px;
+}
+
+.add-item button:hover {
+  background: #7b5c3e;
+}
+
+/* Config button styling */
+.config-button-container {
+  display: flex;
+}
+
+.config-button-container button {
+  display: block;
+  width: 32%;
+  margin: 20px 5px;
+  padding: 10px 20px;
+  color: #ffdab9;
+  background: #5b4334;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.config-button-container button:hover {
+  background: #7b5c3e;
+}
+
+input[type=file] {
+  display: none;
+}
+
+.import-button {
+  display: block;
+  width: 32%;
+  margin: 20px 5px;
+  padding: 10px 20px;
+  font-family: auto;
+  text-align: center;
+  color: #ffdab9;
+  background: #5b4334;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.import-button:hover {
+  background: #7b5c3e;
+}
+
+/* Status bar styling */
+.status-bar {
+  text-align: center;
+  min-height: 1.2em;
+  font-size: 0.8em;
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}

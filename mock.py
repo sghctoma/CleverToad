@@ -3,6 +3,7 @@
 import logging
 import time
 import curses
+import tomlkit
 import clevertoad
 
 
@@ -49,7 +50,9 @@ def main(stdscr):
     clevertoad.logger.propagate = False
     clevertoad.logger.addHandler(handler)
 
-    toad = clevertoad.CleverToad()
+    with open("config.toml", "r") as file:
+        config = tomlkit.load(file)
+    toad = clevertoad.CleverToad(config)
     while True:
         key = stdscr.getch()
         if key == ord('q'):

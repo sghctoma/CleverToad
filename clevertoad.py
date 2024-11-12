@@ -4,7 +4,6 @@ import logging
 import random
 import time
 import threading
-import tomllib
 import pygame
 from gpiozero import Button, LED, Servo
 from espeakng import ESpeakNG
@@ -15,9 +14,8 @@ logging.basicConfig(level=logging.INFO)
 
 
 class CleverToad:
-    def __init__(self):
-        with open('vocabulary.toml', 'rb') as f:
-            self.vocabulary = tomllib.load(f)
+    def __init__(self, config):
+        self.update_config(config)
 
         pygame.mixer.init()
         self.tune = pygame.mixer.Sound("tune.wav")
@@ -41,6 +39,13 @@ class CleverToad:
         self.speech_engine.voice = 'en'
         self.coin_received = False
         self.dice_mode = False
+
+    def update_config(self, config):
+        self.vocabulary = config["prophecy_parts"]
+        self.dice_type = config["dice_type"]
+        self.critical_fail = config["critical_fail"]
+        self.critical_success = config["critical_success"]
+        logger.info("config updated")
 
     def generate_prophecy(self):
         sentence = [
@@ -111,7 +116,7 @@ class CleverToad:
 
     def lever_released(self):
         if not self.lever_button.was_held:
-            self.roll_d20() if self.dice_mode else self.lever_pulled()
+            self.roll_dice() if self.dice_mode else self.lever_pulled()
         self.lever_button.was_held = False
 
     def lever_held(self):
@@ -125,13 +130,13 @@ class CleverToad:
             message = "Back to the prophecies... Thank you!"
         self.speech_engine.say(message)
 
-    def roll_d20(self):
-        n = random.randint(1, 20)
+    def roll_dice(self):
+        n = random.randint(1, self.dice_type)
         logger.info(f"rolled {n}")
         if n == 1:
-            message = "you borfed it"
+            message = self.critical_fail
         elif n == 20:
-            message = "high roller, indeed!"
+            message = self.critical_success
         else:
             message = str(n)
         channel = self.diceroll.play()
@@ -145,8 +150,3 @@ class CleverToad:
             self.on_missing_coin()
         else:
             self.on_prophecy()
-
-
-if __name__ == '__main__':
-    _ = CleverToad()
-    input("Press enter to quit\n\n")
