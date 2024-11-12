@@ -21,6 +21,7 @@ class CleverToad:
 
         pygame.mixer.init()
         self.tune = pygame.mixer.Sound("tune.wav")
+        self.diceroll = pygame.mixer.Sound("diceroll.wav")
 
         Button.was_held = False
         self.lever_button = Button(27, bounce_time=0.05, hold_time=0.5)
@@ -118,7 +119,7 @@ class CleverToad:
         self.dice_mode = not self.dice_mode
         if self.dice_mode:
             logger.info("dice mode activated")
-            message = "You wish... to use my talents... to roll dice?... So shall it be."
+            message = "You wish... to waste my talents... on dice rolling?... So shall it be."
         else:
             logger.info("prophecy mode activated")
             message = "Back to the prophecies... Thank you!"
@@ -130,9 +131,12 @@ class CleverToad:
         if n == 1:
             message = "you borfed it"
         elif n == 20:
-            message = "high roller indeed!"
+            message = "high roller, indeed!"
         else:
             message = str(n)
+        channel = self.diceroll.play()
+        while channel.get_busy():
+            pygame.time.Clock().tick(10)
         self.speech_engine.say(message, sync=True)
 
     def lever_pulled(self):
