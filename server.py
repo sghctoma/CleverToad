@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S GPIOZERO_PIN_FACTORY=pigpio python3
 
 import http.server
 import json
