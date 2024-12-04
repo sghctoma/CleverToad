@@ -135,11 +135,15 @@ class CleverToad:
         self.dice_mode = not self.dice_mode
         if self.dice_mode:
             logger.info("dice mode activated")
-            message = "You wish... to waste my talents... on dice rolling?... So shall it be."
+            self.eyes_led.on()
+            self.book_servo.value = 2 / 9  # max book value (line 96, 97)
+            self.speech_engine.say(
+               "You wish... to waste my talents... on dice rolling?... So shall it be.")
         else:
             logger.info("prophecy mode activated")
-            message = "Back to the prophecies... Thank you!"
-        self.speech_engine.say(message)
+            self.speech_engine.say("Back to the prophecies... Thank you!", sync=True)
+            self.book_servo.value = -1
+            self.eyes_led.off()
 
     def roll_dice(self):
         n = random.randint(1, self.dice_type)
