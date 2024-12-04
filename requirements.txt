@@ -3,3 +3,4 @@ py-espeak-ng==0.1.8
 pygame==2.6.1
 rpi-lgpio==0.6
 tomlkit==0.13.2
+pigpio==1.78
