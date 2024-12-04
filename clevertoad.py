@@ -22,12 +22,12 @@ class CleverToad:
         self.diceroll = pygame.mixer.Sound("diceroll.wav")
 
         Button.was_held = False
-        self.lever_button = Button(27, bounce_time=0.05, hold_time=0.5)
+        self.lever_button = Button(11, bounce_time=0.05, hold_time=0.5)
         self.lever_button.when_held = self.lever_held
         self.lever_button.when_released = self.lever_released
         self.coin_button = Button(22, bounce_time=0.1)
         self.coin_button.when_released = self.coin_inserted
-        self.eyes_led = LED(17)
+        self.eyes_led = LED(16)
         self.book_servo = Servo(pin=14,
                                 min_pulse_width=0.8/1000,
                                 max_pulse_width=2.2/1000,
