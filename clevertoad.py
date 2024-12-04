@@ -31,7 +31,7 @@ class CleverToad:
         self.book_servo = Servo(pin=14,
                                 min_pulse_width=0.8/1000,
                                 max_pulse_width=2.2/1000,
-                                initial_value=1,
+                                initial_value=-1,
                                 frame_width=10/1000)
         self.speech_engine = ESpeakNG()
         self.speech_engine.speed = 155
@@ -81,10 +81,19 @@ class CleverToad:
         time.sleep(0.2)
 
     def turn_pages(self):
-        for s in range(90, 16, -2):
+        for s in range(-90, -40, 2):
             self.book_servo.value = (s / 90)
             time.sleep(0.01)
-        for s in range(15, -25, -1):
+        time.sleep(0.1)
+        for s in range(-40, -30, 2):
+            self.book_servo.value = (s / 90)
+            time.sleep(0.01)
+        time.sleep(0.1)
+        for s in range(-30, 0, 1):
+            self.book_servo.value = (s / 90)
+            time.sleep(0.02)
+        time.sleep(0.1)
+        for s in range(0, 20, 1):
             self.book_servo.value = (s / 90)
             time.sleep(0.02)
 
@@ -108,7 +117,7 @@ class CleverToad:
             pygame.time.Clock().tick(10)
         self.speech_engine.say(self.generate_prophecy(), sync=True)
         self.eyes_led.off()
-        self.book_servo.value = 1
+        self.book_servo.value = -1
 
     def coin_inserted(self):
         logger.info("coin inserted")
