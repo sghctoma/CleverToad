@@ -38,7 +38,9 @@ class CleverToad:
         self.coin_received = False
         self.dice_mode = False
         self.blink()
+        self.eyes_led.on()
         self.speech_engine.say("The Toad... is ready.", sync=True)
+        self.eyes_led.off()
 
     def update_config(self, config):
         self.vocabulary = config["prophecy_parts"]
